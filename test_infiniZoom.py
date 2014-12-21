@@ -10,44 +10,49 @@ def infiniZoom(img, layer) :
     oldHeight = layer.height
     
     '''location (old coords) that will be at the origin of the new layer. no need to quantize here, will happen later'''
-    newXOrg = 20
-    newYOrg = 100
+    finalXOrg = oldWidth/2
+    finalYOrg = oldHeight/2    
+    finalScaleFactor = 2
+    numSteps = 5
     
-    scaleFactor = 2
+    for layerCnt in range(1, numSteps):
     
-    newWidth = int(oldWidth*scaleFactor)
-    newHeight = int(oldHeight*scaleFactor)
-    newX = int(newXOrg*scaleFactor)
-    newY = int(newYOrg*scaleFactor)
-    
-    print("(newX, newY) = " + str((newX,newY)))
-    
-    layerCnt = 1
-    layerName = "layer " + str(layerCnt)
-    
-    print("Creating new layer: " + layerName)
-    currLayer = layer.copy()
-    currLayer.name = layerName
-    
-    print("Adding " + str(layerName) + " to img")
-    img.add_layer(currLayer, 0) 
-   
-    #scale the entire layer
-    print("Scaling Layer")
-    '''scale(h, w, oldin) scales the layer to (w, h), using the specified origin (local or image).'''
-    currLayer.scale(newWidth, newHeight, 0)       
+        linScale = 1.0*layerCnt/numSteps
+        scaleFactor = 1+1.0*(finalScaleFactor-1)*linScale
+        newWidth = int(oldWidth*scaleFactor)
+        newHeight = int(oldHeight*scaleFactor)
+        newXOrg = finalXOrg*linScale
+        newYOrg = finalYOrg*linScale
+        newX = int(newXOrg*scaleFactor)
+        newY = int(newYOrg*scaleFactor)
+        
+        print("(layerCnt, scaleFactor, newX, newY) = " + str((layerCnt, scaleFactor, newX, newY)))
+        
+        layerName = "layer " + str(layerCnt)
+        
+        print("Creating new layer: " + layerName)
+        currLayer = layer.copy()
+        currLayer.name = layerName
+        
+        print("Adding " + str(layerName) + " to img")
+        img.add_layer(currLayer, 0) 
+       
+        #scale the entire layer
+        print("Scaling Layer")
+        '''scale(h, w, oldin) scales the layer to (w, h), using the specified origin (local or image).'''
+        currLayer.scale(newWidth, newHeight, 0)       
 
-    #move the upper left corner of the scaled image so that the desired region of the scaled layer is visible
-    print("Translating Layer")
-    '''Moves the layer to (x, y) relative to its current position.'''
-    ##currLayer.translate(-oldWidth, -oldHeight)    
-    currLayer.translate(-newX, -newY)
-    
-    #resize the layer so it matches original layer. this is the equivalent of Layer->"Layer Boundary Size" option
-    print("Resizing Layer")
-    '''resize(w, h, x, y) resizes the layer to (w, h), positioning the original contents at (x,y).'''    
-    ##currLayer.resize(oldWidth, oldHeight, -oldWidth, -oldHeight)
-    currLayer.resize(oldWidth, oldHeight, -newX, -newY)
+        #move the upper left corner of the scaled image so that the desired region of the scaled layer is visible
+        print("Translating Layer")
+        '''Moves the layer to (x, y) relative to its current position.'''
+        ##currLayer.translate(-oldWidth, -oldHeight)    
+        currLayer.translate(-newX, -newY)
+        
+        #resize the layer so it matches original layer. this is the equivalent of Layer->"Layer Boundary Size" option
+        print("Resizing Layer")
+        '''resize(w, h, x, y) resizes the layer to (w, h), positioning the original contents at (x,y).'''    
+        ##currLayer.resize(oldWidth, oldHeight, -oldWidth, -oldHeight)
+        currLayer.resize(oldWidth, oldHeight, -newX, -newY)
     
     print("Done!")
 
