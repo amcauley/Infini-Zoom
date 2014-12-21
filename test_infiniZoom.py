@@ -10,27 +10,46 @@ def infiniZoom(img, layer) :
     oldHeight = layer.height
     
     '''location (old coords) that will be at the origin of the new layer. no need to quantize here, will happen later'''
-    finalXOrg = oldWidth/2
-    finalYOrg = oldHeight/2    
+    finalXOrg = 1.0*oldWidth/2
+    finalYOrg = 1.0*oldHeight/2    
     finalScaleFactor = 2
-    numSteps = 5
+    newFrames = 4
+
+    print("(oldWidth, oldHeight, finalXOrg, finalYOrg) = " + str((oldWidth, oldHeight, finalXOrg, finalYOrg)))
     
-    for layerCnt in range(1, numSteps):
+    z = finalScaleFactor**(1.0/(newFrames+1))
+    newXOrg = 0
+    newYOrg = 0
+    zInv = 1/z
+    dX = finalXOrg*(1-zInv)/(1-zInv**(newFrames+1))
+    dY = finalYOrg*(1-zInv)/(1-zInv**(newFrames+1))
     
-        linScale = 1.0*layerCnt/numSteps
-        scaleFactor = 1+1.0*(finalScaleFactor-1)*linScale
+    print("(zInv, dX, dY) = " + str((zInv, dX, dY)))
+    
+    for layerCnt in range(0, newFrames):
+    
+        scaleFactor = z**(layerCnt+1)
         newWidth = int(oldWidth*scaleFactor)
         newHeight = int(oldHeight*scaleFactor)
-        newXOrg = finalXOrg*linScale
-        newYOrg = finalYOrg*linScale
-        newX = int(newXOrg*scaleFactor)
-        newY = int(newYOrg*scaleFactor)
+        newXOrg = newXOrg + dX*(zInv**layerCnt)
+        newYOrg = newYOrg + dY*(zInv**layerCnt)
+        '''pixel coords should be integers'''
+        newX = int(newXOrg)
+        newY = int(newYOrg)
+        
+        '''
+        newX = 255
+        newY = 127
+        scaleFactor = 1.7411
+        newWidth = int(oldWidth*scaleFactor)
+        newHeight = int(oldHeight*scaleFactor)
+        '''        
         
         print("(layerCnt, scaleFactor, newX, newY) = " + str((layerCnt, scaleFactor, newX, newY)))
         
-        layerName = "layer " + str(layerCnt)
+        layerName = "new frame " + str(layerCnt)
         
-        print("Creating new layer: " + layerName)
+        print("Creating " + layerName)
         currLayer = layer.copy()
         currLayer.name = layerName
         
@@ -41,18 +60,19 @@ def infiniZoom(img, layer) :
         print("Scaling Layer")
         '''scale(h, w, oldin) scales the layer to (w, h), using the specified origin (local or image).'''
         currLayer.scale(newWidth, newHeight, 0)       
-
-        #move the upper left corner of the scaled image so that the desired region of the scaled layer is visible
-        print("Translating Layer")
+        
+        xTrans = -int(newX*scaleFactor)
+        yTrans = -int(newY*scaleFactor)
+        print("Translating Layer by " + str((xTrans, yTrans)))
         '''Moves the layer to (x, y) relative to its current position.'''
         ##currLayer.translate(-oldWidth, -oldHeight)    
-        currLayer.translate(-newX, -newY)
+        currLayer.translate(xTrans, yTrans)
         
         #resize the layer so it matches original layer. this is the equivalent of Layer->"Layer Boundary Size" option
         print("Resizing Layer")
         '''resize(w, h, x, y) resizes the layer to (w, h), positioning the original contents at (x,y).'''    
         ##currLayer.resize(oldWidth, oldHeight, -oldWidth, -oldHeight)
-        currLayer.resize(oldWidth, oldHeight, -newX, -newY)
+        currLayer.resize(oldWidth, oldHeight, xTrans, yTrans)
     
     print("Done!")
 
@@ -77,6 +97,5 @@ def infiniZoom(img, layer) :
     [],
     [],
     infiniZoom)
-
 main()
 '''
