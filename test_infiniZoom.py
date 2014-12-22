@@ -10,10 +10,10 @@ def infiniZoom(img, layer) :
     oldHeight = layer.height
     
     '''location (old coords) that will be at the origin of the new layer. no need to quantize here, will happen later'''
-    finalXOrg = 1.0*oldWidth/2
-    finalYOrg = 1.0*oldHeight/2    
-    finalScaleFactor = 2
-    newFrames = 4
+    finalXOrg = 300
+    finalYOrg = 100    
+    finalScaleFactor = 3
+    newFrames = 7
 
     print("(oldWidth, oldHeight, finalXOrg, finalYOrg) = " + str((oldWidth, oldHeight, finalXOrg, finalYOrg)))
     
@@ -35,15 +35,7 @@ def infiniZoom(img, layer) :
         newYOrg = newYOrg + dY*(zInv**layerCnt)
         '''pixel coords should be integers'''
         newX = int(newXOrg)
-        newY = int(newYOrg)
-        
-        '''
-        newX = 255
-        newY = 127
-        scaleFactor = 1.7411
-        newWidth = int(oldWidth*scaleFactor)
-        newHeight = int(oldHeight*scaleFactor)
-        '''        
+        newY = int(newYOrg)          
         
         print("(layerCnt, scaleFactor, newX, newY) = " + str((layerCnt, scaleFactor, newX, newY)))
         
